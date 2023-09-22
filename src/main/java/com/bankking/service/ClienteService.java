@@ -2,15 +2,17 @@ package com.bankking.service;
 
 
 import com.bankking.models.Cliente;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public interface ClienteService {
-    public List<Cliente> getClientes();
+    public Flux<Cliente> getClientes();
 
-    public Cliente saveCliente(Cliente cliente);
+    public Mono<Cliente> saveCliente(Cliente cliente);
 
-    public Cliente updateCliente(Long id, Cliente cliente);
+    public Mono<Cliente> updateCliente(Long id, Cliente cliente);
 
-    public Boolean deleteCliente(Long id);
+    public Mono<Boolean> deleteCliente(Long id);
 }

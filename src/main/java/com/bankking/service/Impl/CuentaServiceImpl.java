@@ -27,8 +27,8 @@ public class CuentaServiceImpl implements CuentaService {
 
     @Override
     public Cuenta saveCuenta(Cuenta cuenta) {
-        Optional<Cliente> cuentaCliente = clienteRepository.findById(cuenta.getId());
-        cuenta.setClienteId(cuentaCliente.get().getClienteId());
+//        Optional<Cliente> cuentaCliente = clienteRepository.findById(cuenta.getClienteId());
+//        cuenta.setClienteId(cuentaCliente.get().getClienteId());
         return cuentaRepository.save(cuenta);
     }
 

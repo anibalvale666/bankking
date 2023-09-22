@@ -5,8 +5,11 @@ import com.bankking.repository.ClienteRepository;
 import com.bankking.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ClienteServiceImpl implements ClienteService {
@@ -14,30 +17,36 @@ public class ClienteServiceImpl implements ClienteService {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    public List<Cliente> getClientes() {
-        return clienteRepository.findAll();
+    public Flux<Cliente> getClientes() {
+        return Flux.fromIterable(clienteRepository.findAll());
     }
 
-    public Cliente saveCliente(Cliente cliente){
-        return clienteRepository.save(cliente);
+    public Mono<Cliente> saveCliente(Cliente cliente){
+        return Mono.just(clienteRepository.save(cliente));
     }
 
-    public Cliente updateCliente(Long id, Cliente cliente) {
-        Cliente update_cliente = clienteRepository.findById(id).get();
-        update_cliente.setContrasena(cliente.getContrasena());
-        update_cliente.setEstado(cliente.getEstado());
-        update_cliente.setNombre(cliente.getNombre());
-        update_cliente.setGenero(cliente.getGenero());
-        update_cliente.setEdad(cliente.getEdad());
-        update_cliente.setIdentificacion(cliente.getIdentificacion());
-        update_cliente.setDireccion(cliente.getDireccion());
-        update_cliente.setTelefono(cliente.getTelefono());
-        return clienteRepository.save(update_cliente);
+    public Mono<Cliente> updateCliente(Long id, Cliente cliente) {
+        Cliente updateCliente =  clienteRepository.findById(id).get();
+        updateCliente.setContrasena(cliente.getContrasena());
+        updateCliente.setEstado(cliente.getEstado());
+        updateCliente.setNombre(cliente.getNombre());
+        updateCliente.setGenero(cliente.getGenero());
+        updateCliente.setEdad(cliente.getEdad());
+        updateCliente.setIdentificacion(cliente.getIdentificacion());
+        updateCliente.setDireccion(cliente.getDireccion());
+        updateCliente.setTelefono(cliente.getTelefono());
+        return Mono.just(clienteRepository.save(updateCliente));
+
     }
 
-    public Boolean deleteCliente(Long id) {
-        Cliente toDelete = clienteRepository.findById(id).get();
-        clienteRepository.delete(toDelete);
-        return true;
+    public Mono<Boolean> deleteCliente(Long id) {
+        Optional<Cliente> deleteCliente =  clienteRepository.findById(id);
+
+        if(deleteCliente.isPresent()) {
+            clienteRepository.delete(deleteCliente.get());
+            return Mono.just(true);
+        }
+        return Mono.just(false);
+
     }
 }

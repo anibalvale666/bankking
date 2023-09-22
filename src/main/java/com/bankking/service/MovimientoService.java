@@ -8,7 +8,7 @@ import java.util.List;
 public interface MovimientoService {
     public List<Movimiento> getMovimientos();
 
-    public Movimiento saveMovimiento(Movimiento movimiento);
+    public Movimiento saveMovimiento(Movimiento movimiento) throws Exception;
 
     public Movimiento updateMovimiento(Long id, Movimiento cuenta);
 

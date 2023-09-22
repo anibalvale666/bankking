@@ -17,5 +17,5 @@ public class Cuenta {
     private String tipoCuenta;
     private Double saldoInicial;
     private Boolean estado;
-    private long clienteId;
+    private Long clienteId;
 }

@@ -15,9 +15,9 @@ public class Movimiento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private Date fecha;
-    private String tipoMovimiento;
-    private String valor;
+    private String tipoMovimiento; //Credito //debito
+    private Double valor;
     private Double saldo;
-    private long clienteId;
-    private long cuentaId;
+    private Long clienteId;
+    private Long cuentaId;
 }

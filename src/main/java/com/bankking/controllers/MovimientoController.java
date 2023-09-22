@@ -20,7 +20,7 @@ public class MovimientoController {
     }
 
     @PostMapping("movimientos")
-    public Movimiento saveCliente(@RequestBody Movimiento movimiento) {
+    public Movimiento saveCliente(@RequestBody Movimiento movimiento) throws Exception {
         return service.saveMovimiento(movimiento);
     }
 
