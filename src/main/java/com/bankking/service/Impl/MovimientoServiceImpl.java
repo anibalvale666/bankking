@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -65,6 +67,22 @@ public class MovimientoServiceImpl implements MovimientoService {
         return Mono.just(movimientoRepository.save(movimiento));
     }
 
+    private Double obtenerAcumulado(Long clienteId) {
+
+        LocalDate fechaActual = LocalDate.now();
+        //LocalDate fechaActual = LocalDate.parse("2023-09-26");
+
+        return movimientoRepository.findByClienteId(clienteId)
+            .stream()
+            .filter(movimiento -> movimiento.getTipoMovimiento().equals(Constants.DEBITO))
+            .filter(movimiento -> {
+                LocalDate fechaMovimiento = movimiento.getFecha().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                return fechaMovimiento.equals(fechaActual);
+            })
+            .map(Movimiento::getValor)
+            .reduce(0.0, Double::sum);
+    }
+
     private Double calcularSaldo(Long cuentaId, Double saldoInicial) {
         return movimientoRepository.findByCuentaId(cuentaId)
             .stream()
@@ -78,16 +96,6 @@ public class MovimientoServiceImpl implements MovimientoService {
             .max(Comparator.comparing(Movimiento::getFecha))
             .map(ultimoMovimiento -> ultimoMovimiento.getSaldo())
             .orElse(SaldoInicial);
-    }
-
-    private Double obtenerAcumulado(Long clienteId) {
-        Date fechaActual = new Date();
-        return movimientoRepository.findByClienteId(clienteId)
-            .stream()
-            .filter(movimiento -> movimiento.getTipoMovimiento().equals(Constants.DEBITO))
-            .filter(movimiento -> movimiento.getFecha() == fechaActual)
-            .map(Movimiento::getValor)
-            .reduce(0.0, Double::sum);
     }
 
 
