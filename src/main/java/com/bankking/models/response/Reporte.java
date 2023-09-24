@@ -1,7 +1,6 @@
 package com.bankking.models.response;
 
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
