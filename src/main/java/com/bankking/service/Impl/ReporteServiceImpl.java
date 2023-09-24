@@ -41,10 +41,10 @@ public class ReporteServiceImpl implements ReporteService {
             // obtenemos el cliente
             Optional<Cliente> cliente = clienteRepository.findByClienteId(clienteId);
             if(cliente.isEmpty()) {
-                throw new Exception("cliente o cuenta inexistente");
+                return Mono.error(new Exception("cliente o cuenta inexistente"));
             }
 
-            // obtenemos todos los movimientos del cliente
+            // obtenemos todos los movimientos del cliente y los filtraos por fechas
             List<Movimiento> movimientos = movimientoRepository.findByClienteId(clienteId)
                 .stream()
                 .filter(movimiento -> movimiento.getFecha().after(fechaIn) && movimiento.getFecha().before(fechaFi))
@@ -54,22 +54,16 @@ public class ReporteServiceImpl implements ReporteService {
             Map<Long, List<Movimiento>> movimientosPorCuenta = movimientos.stream()
                 .collect(Collectors.groupingBy(Movimiento::getCuentaId));
 
-            // Ordenar los movimientos dentro de cada grupo por fecha
             movimientosPorCuenta.forEach((cuentaId, listaMovimientos) -> {
+
                 listaMovimientos.sort(Comparator.comparing(Movimiento::getFecha));
-            });
 
-
-
-            movimientosPorCuenta.forEach((cuentaId, listaMovimientos) -> {
-                // Obtener los datos relevantes para el reporte de esta cuenta
                 Cuenta cuenta = cuentas.stream()
                     .filter(c -> c.getId() == cuentaId)
                     .findFirst()
                     .orElse(null);
 
                 listaMovimientos.forEach(movimiento -> {
-                    // Crear un objeto MovimientosReporte
                     MovimientosReporte movimientoReporte = MovimientosReporte.builder()
                         .fecha(movimiento.getFecha())
                         .nombreCliente(cliente.get().getNombre())
@@ -82,7 +76,6 @@ public class ReporteServiceImpl implements ReporteService {
                         .saldoDisponible(movimiento.getSaldo())
                         .build();
 
-                    // Agregar el objeto MovimientosReporte a la lista
                     movimientosReporteList.add(movimientoReporte);
                 });
 

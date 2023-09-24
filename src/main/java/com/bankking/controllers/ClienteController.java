@@ -31,7 +31,6 @@ public class ClienteController {
         return ResponseEntity.status(HttpStatus.OK)
                         .body(service.saveCliente(cliente));
 
-
     }
 
     @PutMapping("clientes/{id}")
