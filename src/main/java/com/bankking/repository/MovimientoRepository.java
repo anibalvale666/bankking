@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface MovimientoRepository extends JpaRepository<Movimiento, Long> {
     List<Movimiento> findByCuentaId(Long cuentaId);
+    List<Movimiento> findByClienteId(Long clienteId);
 }

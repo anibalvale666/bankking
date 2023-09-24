@@ -1,8 +1,6 @@
 package com.bankking.controllers;
 
-import com.bankking.models.Cuenta;
 import com.bankking.models.Movimiento;
-import com.bankking.service.CuentaService;
 import com.bankking.service.MovimientoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

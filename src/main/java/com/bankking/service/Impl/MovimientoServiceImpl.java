@@ -10,6 +10,7 @@ import com.bankking.service.MovimientoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -36,11 +37,12 @@ public class MovimientoServiceImpl implements MovimientoService {
     @Override
     public Movimiento saveMovimiento(Movimiento movimiento) throws Exception {
 
-        movimiento.setFecha(new Date());
+
+//        movimiento.setFecha(new Date());
         // si es debito validar si hay saldo suficiente
 
         //si es debito alidar cuanto ha retirado durante el dia tope max 10000
-        Optional<Cliente> cliente = clienteRepository.findById(movimiento.getClienteId());
+        Optional<Cliente> cliente = clienteRepository.findByClienteId(movimiento.getClienteId());
         Optional<Cuenta> cuenta = cuentaRepository.findById(movimiento.getCuentaId());
         if(cliente.isEmpty() || cuenta.isEmpty()) {
             throw new Exception("cliente o cuenta inexistente");
@@ -101,6 +103,7 @@ public class MovimientoServiceImpl implements MovimientoService {
             movimientoUpdate.setTipoMovimiento(movimiento.getTipoMovimiento());
             movimientoUpdate.setValor(movimiento.getValor());
             movimientoUpdate.setSaldo(movimiento.getSaldo());
+            movimientoUpdate.setClienteId(movimiento.getClienteId());
             return movimientoRepository.save(movimientoUpdate);
         } else {
             return null;

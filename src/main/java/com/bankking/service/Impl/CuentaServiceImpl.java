@@ -1,6 +1,5 @@
 package com.bankking.service.Impl;
 
-import com.bankking.models.Cliente;
 import com.bankking.models.Cuenta;
 import com.bankking.repository.ClienteRepository;
 import com.bankking.repository.CuentaRepository;
