@@ -4,6 +4,7 @@ import com.bankking.models.Movimiento;
 import com.bankking.service.MovimientoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class MovimientoController {
     }
 
     @PostMapping("movimientos")
-    public Movimiento saveCliente(@RequestBody Movimiento movimiento) throws Exception {
+    public Mono<Movimiento> saveCliente(@RequestBody Movimiento movimiento) throws Exception {
         return service.saveMovimiento(movimiento);
     }
 

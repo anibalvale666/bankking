@@ -7,8 +7,10 @@ import com.bankking.repository.ClienteRepository;
 import com.bankking.repository.CuentaRepository;
 import com.bankking.repository.MovimientoRepository;
 import com.bankking.service.MovimientoService;
+import com.bankking.utils.constant.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
 import java.util.Date;
@@ -34,32 +36,33 @@ public class MovimientoServiceImpl implements MovimientoService {
     }
 
     @Override
-    public Movimiento saveMovimiento(Movimiento movimiento) throws Exception {
+    public Mono<Movimiento> saveMovimiento(Movimiento movimiento) throws Exception {
 
         //si es debito alidar cuanto ha retirado durante el dia tope max 1000
         Optional<Cliente> cliente = clienteRepository.findByClienteId(movimiento.getClienteId());
         Optional<Cuenta> cuenta = cuentaRepository.findById(movimiento.getCuentaId());
+
         if(cliente.isEmpty() || cuenta.isEmpty()) {
-            throw new Exception("cliente o cuenta inexistente");
+            return Mono.error(new Exception(Constants.MESSAGE_ERROR_CLIENT_OR_ACCOUNT_NOT_FOUND));
         }
         // preguntar si es debito (restar) o credito ( sumar)
-        Double saldo = obtenerUltimoSaldo(cuenta.get().getClienteId(), cuenta.get().getSaldoInicial());
-        if(movimiento.getTipoMovimiento().equals("credito")) {
+        Double saldo = obtenerUltimoSaldo(cuenta.get().getId(), cuenta.get().getSaldoInicial());
+        if(movimiento.getTipoMovimiento().equals(Constants.CREDITO)) {
             movimiento.setSaldo(saldo + movimiento.getValor());
         } else {
             // obtener acumulado
             Double accum = obtenerAcumulado(cuenta.get().getClienteId());
             if(saldo < movimiento.getValor()) {
-                throw new Exception("Saldo no disponible");
+                return Mono.error(new Exception(Constants.MESSAGE_ERROR_UNAVAILABLE_BALANCE));
             }
             if(accum + movimiento.getValor() > 1000.0) {
-                throw new Exception("Cupo diario excedido");
+                return Mono.error(new Exception(Constants.MESSAGE_ERROR_DAILY_QUOTA_EXCEEDED));
             }
             movimiento.setSaldo(saldo - movimiento.getValor());
         }
         movimiento.setClienteId(cliente.get().getClienteId());
         movimiento.setCuentaId(cuenta.get().getId());
-        return movimientoRepository.save(movimiento);
+        return Mono.just(movimientoRepository.save(movimiento));
     }
 
     private Double calcularSaldo(Long cuentaId, Double saldoInicial) {
@@ -77,11 +80,11 @@ public class MovimientoServiceImpl implements MovimientoService {
             .orElse(SaldoInicial);
     }
 
-    private Double obtenerAcumulado(Long cuentaId) {
+    private Double obtenerAcumulado(Long clienteId) {
         Date fechaActual = new Date();
-        return movimientoRepository.findByCuentaId(cuentaId)
+        return movimientoRepository.findByClienteId(clienteId)
             .stream()
-            .filter(movimiento -> movimiento.getTipoMovimiento().equals("debito"))
+            .filter(movimiento -> movimiento.getTipoMovimiento().equals(Constants.DEBITO))
             .filter(movimiento -> movimiento.getFecha() == fechaActual)
             .map(Movimiento::getValor)
             .reduce(0.0, Double::sum);
